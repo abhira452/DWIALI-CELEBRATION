@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali Celebration ✨</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #000010, #000);
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  .center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    animation: fadeIn 2s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+  }
+
+  .greeting {
+    font-size: 28px;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 0 0 20px orange, 0 0 40px gold, 0 0 70px yellow;
+    animation: glowPulse 2s infinite alternate;
+    margin-bottom: 20px;
+  }
+
+  @keyframes glowPulse {
+    from { text-shadow: 0 0 10px gold, 0 0 25px orange; }
+    to { text-shadow: 0 0 40px gold, 0 0 60px orange, 0 0 80px yellow; }
+  }
+
+  .input-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input, button {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 2px solid gold;
+    outline: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  #nameInput, #photoUpload, #friendUpload {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    box-shadow: 0 0 25px gold, inset 0 0 10px orange;
+    width: 260px;
+    text-align: center;
+  }
+
+  button {
+    cursor: pointer;
+    background: linear-gradient(90deg, gold, orange, gold);
+    color: black;
+    box-shadow: 0 0 35px gold;
+  }
+
+  button:hover {
+    box-shadow: 0 0 60px gold;
+    transform: scale(1.05);
+  }
+
+  /* Decorative Lights */
+  .light {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    box-shadow: 0 0 25px gold;
+    animation: twinkle 1.5s infinite alternate;
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.5; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1.2); }
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div class="center-box" id="inputBox">
+  <div class="greeting">✨ ENTER YOUR DETAILS FOR CELEBRATION 🎉 ✨</div>
+  <div class="input-area">
+    <input type="text" id="nameInput" placeholder="Enter your name ✨">
+    <input type="file" id="photoUpload" accept="image/*">
+    <input type="file" id="friendUpload" accept="image/*" placeholder="Add friend's photo (optional)">
+    <button onclick="startCelebration()">Start Celebration 🎆</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let w = canvas.width, h = canvas.height;
+let angle = 0, running = false;
+let userName = "", userPhoto = null, friendPhoto = null;
+
+// Random twinkling lights
+function createLights(count) {
+  for (let i = 0; i < count; i++) {
+    const light = document.createElement("div");
+    light.classList.add("light");
+    const colorArray = ['#FFD700', '#FF4500', '#FF69B4', '#00FFFF', '#ADFF2F'];
+    const color = colorArray[Math.floor(Math.random() * colorArray.length)];
+    light.style.background = color;
+    light.style.boxShadow = `0 0 30px ${color}`;
+    light.style.left = Math.random() * w + "px";
+    light.style.top = Math.random() * h + "px";
+    light.style.animationDelay = Math.random() * 2 + "s";
+    document.body.appendChild(light);
+  }
+}
+createLights(90);
+
+// Photo upload handlers
+document.getElementById('photoUpload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  img.onload = () => userPhoto = img;
+});
+
+document.getElementById('friendUpload').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  img.onload = () => friendPhoto = img;
+});
+
+function drawLights() {
+  const bulbCount = 40;
+  for (let i = 0; i < bulbCount; i++) {
+    const x = 80 + i * ((w - 160) / bulbCount);
+    const yTop = 60 + Math.sin(Date.now() / (150 + i*5)) * 10;
+    const yBottom = h - 60 + Math.cos(Date.now() / (150 + i*5)) * 10;
+    const colors = ["gold", "orange", "white", "red", "lime", "cyan"];
+    const color = colors[(i + Math.floor(Date.now() / 150)) % colors.length];
+    ctx.beginPath();
+    ctx.arc(x, yTop, 6, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 25;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, yBottom, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawSpiral() {
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(angle);
+  for (let i = 0; i < 122; i++) {
+    ctx.strokeStyle = i % 2 === 0 ? "orange" : "white";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, i * 3, 0, Math.PI / 6);
+    ctx.stroke();
+    ctx.rotate(Math.PI / 60);
+  }
+  ctx.restore();
+}
+
+function drawPhotos() {
+  const size = 160;
+  if (userPhoto && friendPhoto) {
+    // two photos side by side
+    drawSinglePhoto(userPhoto, w/2 - 120, h/2, size, "gold");
+    drawSinglePhoto(friendPhoto, w/2 + 120, h/2, size, "orange");
+  } else if (userPhoto) {
+    drawSinglePhoto(userPhoto, w/2, h/2, size, "gold");
+  }
+}
+
+function drawSinglePhoto(img, x, y, size, glowColor) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, size/2, 0, Math.PI*2);
+  ctx.clip();
+  ctx.drawImage(img, x - size/2, y - size/2, size, size);
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(x, y, size/2 + 6, 0, Math.PI*2);
+  ctx.strokeStyle = glowColor;
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = 50;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function drawTexts() {
+  const jump = Math.sin(Date.now() / 400) * 40;
+  ctx.font = "bold 56px Poppins";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "gold";
+  ctx.shadowBlur = 50;
+  ctx.fillStyle = "rgba(255,255,210,0.95)";
+  ctx.fillText("✨ HAPPY DIWALI ✨", w/2, h/2 - 240 + jump);
+  ctx.font = "bold 40px Poppins";
+  ctx.shadowColor = "orange";
+  ctx.fillText(userName, w/2, h/2 + 240 + jump);
+}
+
+function animate() {
+  if (!running) return;
+  ctx.clearRect(0, 0, w, h);
+  drawLights();
+  drawSpiral();
+  drawPhotos();
+  drawTexts();
+  angle += 0.02;
+  requestAnimationFrame(animate);
+}
+
+function startCelebration() {
+  userName = document.getElementById("nameInput").value || "Guest";
+  document.getElementById("inputBox").style.display = "none";
+  running = true;
+  animate();
+}
+</script>
+</body>
+</html>

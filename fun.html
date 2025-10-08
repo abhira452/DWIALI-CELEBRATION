@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Diwali ✨</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+  body {
+    margin: 0;
+    background-color: black;
+    overflow: hidden;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  input {
+    z-index: 10;
+    margin: 12px;
+    padding: 12px 18px;
+    border: 2px solid #ffb400;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+    color: #fff;
+    background: rgba(30, 30, 30, 0.7);
+    box-shadow: 0 0 15px #ffb400, inset 0 0 10px #ffb400;
+    outline: none;
+    transition: 0.3s;
+  }
+
+  input:focus {
+    box-shadow: 0 0 25px #ff9c00, inset 0 0 15px #ff9c00;
+  }
+
+  button {
+    z-index: 10;
+    padding: 10px 22px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #ffb400, #ffffff, #ff8c00);
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(90deg, #fff, #ffa500, #fff);
+  }
+
+  /* Side decorative lights */
+  .lights {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 5;
+  }
+
+  .light {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    animation: glow 1.2s infinite alternate;
+  }
+
+  @keyframes glow {
+    0% { opacity: 0.4; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.4); }
+  }
+
+  .left { left: 0; }
+  .right { right: 0; }
+</style>
+</head>
+<body>
+
+<!-- Decorative Lights -->
+<div class="lights left" id="leftLights"></div>
+<div class="lights right" id="rightLights"></div>
+
+<!-- Canvas -->
+<canvas id="spiral"></canvas>
+
+<!-- Controls -->
+<input type="text" id="nameInput" placeholder="Enter your name..." />
+<button id="startBtn">Start Celebration 🎆</button>
+
+<script>
+const canvas = document.getElementById('spiral');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let angle = 0;
+let running = false;
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+
+let userName = "";
+let jumpStep = 0;
+let colors = ['#FFD700', '#FF69B4', '#00FFFF', '#FFA500', '#FF00FF'];
+
+function drawStep() {
+  if (!running) return;
+
+  // Background glow fade
+  ctx.fillStyle = "rgba(0,0,0,0.1)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Spiral
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle * Math.PI / 180);
+  ctx.strokeStyle = colors[Math.floor(angle / 10) % colors.length];
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(130, 0, 40, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Moving glowing ball
+  const ballX = cx + 130 * Math.cos(angle * Math.PI / 180);
+  const ballY = cy + 130 * Math.sin(angle * Math.PI / 180);
+  ctx.beginPath();
+  ctx.fillStyle = "#00FF66";
+  ctx.shadowColor = "#00FF66";
+  ctx.shadowBlur = 20;
+  ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Text (Jumping animation)
+  jumpStep += 0.03;
+  let jumpY1 = Math.sin(jumpStep * 3) * 50;
+  let jumpY2 = Math.cos(jumpStep * 4) * 40;
+
+  // Greeting text with changing color
+  ctx.font = "bold 64px Poppins";
+  let grad1 = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  grad1.addColorStop(0, colors[Math.floor(angle / 5) % colors.length]);
+  grad1.addColorStop(1, colors[(Math.floor(angle / 5) + 2) % colors.length]);
+  ctx.fillStyle = grad1;
+  ctx.shadowColor = colors[(Math.floor(angle / 5) + 1) % colors.length];
+  ctx.shadowBlur = 60;
+  ctx.fillText("🎇 Happy Diwali ✨", cx - 300, cy - 150 + jumpY1);
+
+  // User name with glow
+  if (userName) {
+    ctx.font = "bold 54px Poppins";
+    let grad2 = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    grad2.addColorStop(0, colors[(Math.floor(angle / 3) + 1) % colors.length]);
+    grad2.addColorStop(1, colors[(Math.floor(angle / 3) + 3) % colors.length]);
+    ctx.fillStyle = grad2;
+    ctx.shadowColor = grad2.addColorStop;
+    ctx.shadowBlur = 60;
+    ctx.fillText(userName, cx - ctx.measureText(userName).width / 2, cy + 180 + jumpY2);
+  }
+
+  angle += 3;
+  requestAnimationFrame(drawStep);
+}
+
+// Create festive side lights
+function makeLights(id) {
+  const container = document.getElementById(id);
+  const colorArray = ['#FF0000', '#FF8000', '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF'];
+  for (let i = 0; i < 10; i++) {
+    const bulb = document.createElement("div");
+    bulb.classList.add("light");
+    const color = colorArray[i % colorArray.length];
+    bulb.style.background = color;
+    bulb.style.boxShadow = `0 0 25px ${color}`;
+    bulb.style.animationDelay = `${Math.random()}s`;
+    container.appendChild(bulb);
+  }
+}
+makeLights("leftLights");
+makeLights("rightLights");
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  if (!running) {
+    running = true;
+    userName = document.getElementById('nameInput').value.trim() || "Welcome!";
+    drawStep();
+  }
+});
+</script>
+
+</body>
+</html>
